@@ -2,11 +2,10 @@ import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 function Chart({ signals }) {
-  // You would replace this with real data
   const data = [
-    { name: '01 Jan', uv: 1.01, pv: 1.02, signal: 'buy' },
-    { name: '02 Jan', uv: 1.02, pv: 1.03, signal: 'sell' },
-    // Add more data points
+    { name: '2022-01-01', uv: 1.01, pv: 1.02, signal: 'buy' },
+    { name: '2022-01-02', uv: 1.02, pv: 1.03, signal: 'sell' },
+    { name: '2022-01-03', uv: 1.03, pv: 1.05, signal: 'buy' },
   ];
 
   return (
