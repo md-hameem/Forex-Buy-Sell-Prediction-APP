@@ -5,17 +5,45 @@ function SignalForm({ setSignals, setPerformance }) {
   const [startDate, setStartDate] = useState('2022-01-01');
   const [endDate, setEndDate] = useState('2023-01-01');
   const [threshold, setThreshold] = useState(0.002);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch('/api/generate-signals', {
-      method: 'POST',
-      body: JSON.stringify({ symbol, startDate, endDate, threshold }),
-      headers: { 'Content-Type': 'application/json' }
-    });
-    const data = await response.json();
-    setSignals(data.signals);
-    setPerformance(data.performance);
+    setIsLoading(true);
+
+    // Structure the data to match the expected format in FastAPI
+    const requestData = {
+      symbol,
+      start_date: startDate,
+      end_date: endDate,
+      threshold: parseFloat(threshold),
+    };
+
+    try {
+      // Send POST request to FastAPI backend
+      const response = await fetch('http://localhost:8000/api/generate-signals', {
+        method: 'POST',
+        body: JSON.stringify(requestData),
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      // Handle the response
+      if (response.ok) {
+        const data = await response.json();
+        setSignals(data.signals);
+        setPerformance(data.performance);
+      } else {
+        // Handle error responses (e.g., 422 or other errors)
+        const errorData = await response.json();
+        console.error("Error fetching signals:", errorData);
+        alert("There was an error fetching the forex signals. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error in request:", error);
+      alert("There was an error fetching the forex signals. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -66,12 +94,16 @@ function SignalForm({ setSignals, setPerformance }) {
             step="0.0001"
           />
         </div>
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-300"
-        >
-          Generate Signals
-        </button>
+        {isLoading ? (
+          <div className="text-center">Loading...</div>
+        ) : (
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-300"
+          >
+            Generate Signals
+          </button>
+        )}
       </form>
     </div>
   );
