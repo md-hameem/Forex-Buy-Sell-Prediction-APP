@@ -6,10 +6,12 @@ function SignalForm({ setSignals, setPerformance }) {
   const [endDate, setEndDate] = useState('2023-01-01');
   const [threshold, setThreshold] = useState(0.002);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);  // Added error state
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);  // Reset previous errors
 
     // Structure the data to match the expected format in FastAPI
     const requestData = {
@@ -30,17 +32,17 @@ function SignalForm({ setSignals, setPerformance }) {
       // Handle the response
       if (response.ok) {
         const data = await response.json();
-        setSignals(data.signals);
-        setPerformance(data.performance);
+        setSignals(data.signals);  // Assuming 'signals' is the response from the backend
+        setPerformance(data.performance);  // Assuming 'performance' is part of the response
       } else {
         // Handle error responses (e.g., 422 or other errors)
         const errorData = await response.json();
         console.error("Error fetching signals:", errorData);
-        alert("There was an error fetching the forex signals. Please try again.");
+        setError("There was an error fetching the forex signals. Please try again.");
       }
     } catch (error) {
       console.error("Error in request:", error);
-      alert("There was an error fetching the forex signals. Please try again.");
+      setError("There was an error fetching the forex signals. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -105,6 +107,21 @@ function SignalForm({ setSignals, setPerformance }) {
           </button>
         )}
       </form>
+
+      {/* Error message display */}
+      {error && <div className="text-red-600 mt-4">{error}</div>}
+
+      {/* Optional: Display the result after signal generation */}
+      {/* For example, showing predicted price and signal */}
+      <div className="mt-6">
+        <h3 className="text-lg font-semibold">Prediction Results</h3>
+        {setSignals && (
+          <div>
+            <p><strong>Signal:</strong> {setSignals}</p>
+            <p><strong>Predicted Price:</strong> {setPerformance}</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
