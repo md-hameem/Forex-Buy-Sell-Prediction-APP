@@ -1,5 +1,3 @@
-import React from 'react';
-
 function PerformanceMetrics({ performance }) {
   return (
     <div id="metrics" className="bg-white shadow-lg p-6 rounded-lg my-8">
