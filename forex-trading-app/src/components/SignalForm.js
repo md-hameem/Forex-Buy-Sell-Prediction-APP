@@ -8,15 +8,9 @@ function SignalForm({ setSignals, setPerformance }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Make an API call to your backend (FastAPI) to get the signals
     const response = await fetch('/api/generate-signals', {
       method: 'POST',
-      body: JSON.stringify({
-        symbol,
-        startDate,
-        endDate,
-        threshold
-      }),
+      body: JSON.stringify({ symbol, startDate, endDate, threshold }),
       headers: { 'Content-Type': 'application/json' }
     });
     const data = await response.json();
