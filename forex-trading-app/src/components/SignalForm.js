@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
 
-function SignalForm({ setSignals, setPerformance }) {
+function SignalForm({ signal, performance, setSignals, setPerformance }) {
   const [symbol, setSymbol] = useState('EURUSD=X');
   const [startDate, setStartDate] = useState('2022-01-01');
   const [endDate, setEndDate] = useState('2023-01-01');
   const [threshold, setThreshold] = useState(0.002);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);  // Added error state
+  const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);  // Reset previous errors
 
-    // Structure the data to match the expected format in FastAPI
     const requestData = {
       symbol,
       start_date: startDate,
@@ -22,20 +21,20 @@ function SignalForm({ setSignals, setPerformance }) {
     };
 
     try {
-      // Send POST request to FastAPI backend
       const response = await fetch('http://localhost:8000/api/generate-signals', {
         method: 'POST',
         body: JSON.stringify(requestData),
         headers: { 'Content-Type': 'application/json' },
       });
 
-      // Handle the response
       if (response.ok) {
         const data = await response.json();
-        setSignals(data.signals);  // Assuming 'signals' is the response from the backend
-        setPerformance(data.performance);  // Assuming 'performance' is part of the response
+        console.log("Response Data:", data);  // Log response to verify the structure
+
+        // Set signals and performance
+        setSignals(data.signal);  // Set the signal (buy/sell/hold)
+        setPerformance(data.predicted_price);  // Set the predicted price
       } else {
-        // Handle error responses (e.g., 422 or other errors)
         const errorData = await response.json();
         console.error("Error fetching signals:", errorData);
         setError("There was an error fetching the forex signals. Please try again.");
@@ -111,15 +110,16 @@ function SignalForm({ setSignals, setPerformance }) {
       {/* Error message display */}
       {error && <div className="text-red-600 mt-4">{error}</div>}
 
-      {/* Optional: Display the result after signal generation */}
-      {/* For example, showing predicted price and signal */}
+      {/* Display the result after signal generation */}
       <div className="mt-6">
         <h3 className="text-lg font-semibold">Prediction Results</h3>
-        {setSignals && (
+        {signal && performance ? (
           <div>
-            <p><strong>Signal:</strong> {setSignals}</p>
-            <p><strong>Predicted Price:</strong> {setPerformance}</p>
+            <p><strong>Signal:</strong> {signal}</p>
+            <p><strong>Predicted Price:</strong> {performance}</p>
           </div>
+        ) : (
+          <p>No results available yet.</p>
         )}
       </div>
     </div>
